@@ -1,0 +1,20 @@
+{
+  "name": "flashpatch-example",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "npm install --ignore-scripts && npx tsc && node dist/start.js",
+    "build": "tsc",
+    "feed": "cd feed && npm install --ignore-scripts --install-links && npx tsc && node dist/server.js",
+    "web": "cd web && npm install && npx vite"
+  },
+  "dependencies": {
+    "@pay/agent-runtime": "file:../../packages/agent-runtime",
+    "bignumber.js": "^9.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
