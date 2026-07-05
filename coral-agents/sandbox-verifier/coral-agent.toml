@@ -1,0 +1,21 @@
+# Sandbox Verifier manifest
+edition = 4
+
+[agent]
+name = "sandbox-verifier"
+version = "0.1.0"
+description = "Independent patch verifier. Replays the exploit against each patch candidate. Holds no keys, moves no funds. VERIFY in -> VERIFIED pass|fail out."
+summary = "FlashPatch sandbox verifier — the neutral 3rd party in patch settlement."
+
+[agent.license]
+type = "spdx"
+expression = "MIT"
+
+[options]
+AGENT_NAME            = { type = "string", default = "sandbox-verifier" }
+SOLANA_RPC_URL        = { type = "string", default = "" }
+VULNERABLE_PROGRAM_ID = { type = "string", default = "" }
+TRACE                 = { type = "string", default = "" }
+
+[runtimes.docker]
+image = "sandbox-verifier:0.1.0"
