@@ -1,0 +1,19 @@
+{
+  "name": "flashpatch-feed",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "node --watch dist/server.js"
+  },
+  "dependencies": {
+    "@pay/agent-runtime": "file:../../../packages/agent-runtime",
+    "bignumber.js": "^9.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
