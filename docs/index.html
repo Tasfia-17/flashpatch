@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlashPatch -- Autonomous Emergency Patch Swarm for Solana</title>
+  <meta name="description" content="When a Solana program is exploited, a swarm of AI agents competes to patch it in under 60 seconds. Payment settles trustlessly on-chain. No humans in the loop." />
+  <meta property="og:title" content="FlashPatch" />
+  <meta property="og:description" content="Autonomous emergency patch swarm for Solana programs. Built for Imperial AI Agent Hackathon EP5." />
+  <meta property="og:image" content="https://tasfia-17.github.io/flashpatch/og.png" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="logo-bolt">⚡</span>
+      <span class="logo-text">FlashPatch</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#agents">Agents</a>
+      <a href="#demo">Live Demo</a>
+      <a href="https://github.com/Tasfia-17/flashpatch" target="_blank" rel="noreferrer" class="btn-ghost">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="container">
+    <div class="badge">Imperial AI Agent Hackathon EP5 &mdash; Solana x CoralOS Track</div>
+    <h1 class="hero-title">
+      <span class="title-line">Exploited in seconds.</span>
+      <span class="title-line accent">Patched in seconds.</span>
+    </h1>
+    <p class="hero-sub">
+      When a Solana program is exploited, a swarm of competing AI agents generates, verifies,
+      and deploys a patch in under 60 seconds. Payment settles trustlessly through an on-chain
+      arbiter escrow. No humans. No multisig delay. No counterparty risk.
+    </p>
+    <div class="hero-cta">
+      <a href="#demo" class="btn-primary">Watch Live Demo</a>
+      <a href="https://github.com/Tasfia-17/flashpatch" target="_blank" rel="noreferrer" class="btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        View Source
+      </a>
+    </div>
+    <div class="hero-stat-row">
+      <div class="stat"><span class="stat-num">&lt;60s</span><span class="stat-label">exploit to patch</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num">6</span><span class="stat-label">autonomous agents</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num">0</span><span class="stat-label">humans in the loop</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num">100%</span><span class="stat-label">trustless settlement</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Seven steps. Zero humans.</h2>
+    <p class="section-sub">Every arrow is a real CoralOS message. Every fund movement is a real Solana devnet transaction.</p>
+    <div class="flow">
+      <div class="flow-step" data-step="1">
+        <div class="flow-icon">🔍</div>
+        <div class="flow-content">
+          <div class="flow-verb">EXPLOIT_DETECTED</div>
+          <div class="flow-desc">exploit-detector polls the program every 2 seconds, spots the integer overflow withdraw pattern, fires emergency mode</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step" data-step="2">
+        <div class="flow-icon">📢</div>
+        <div class="flow-content">
+          <div class="flow-verb">WANT</div>
+          <div class="flow-desc">broadcasts service=emergency_patch to all three patch agents simultaneously with the security budget</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step competing" data-step="3">
+        <div class="flow-icon">⚔️</div>
+        <div class="flow-content">
+          <div class="flow-verb">BID x3</div>
+          <div class="flow-desc">patch-fast bids 0.005 SOL (5s, 72% confidence), patch-hybrid bids 0.010 SOL (15s, 91%), patch-deep bids 0.015 SOL (30s, 95%)</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step" data-step="4">
+        <div class="flow-icon">🏆</div>
+        <div class="flow-content">
+          <div class="flow-verb">AWARD + DEPOSITED</div>
+          <div class="flow-desc">winner awarded, arbiter-gated escrow opens on devnet, funds locked until delivery verified</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step" data-step="5">
+        <div class="flow-icon">🔬</div>
+        <div class="flow-content">
+          <div class="flow-verb">VERIFY + VERIFIED</div>
+          <div class="flow-desc">sandbox-verifier replays the exploit transaction against the patch, checks sha256 hash, confirms the overflow is blocked</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step" data-step="6">
+        <div class="flow-icon">🚀</div>
+        <div class="flow-content">
+          <div class="flow-verb">PATCH_DEPLOYED</div>
+          <div class="flow-desc">threshold-deployer reaches 2-of-3 consensus, signs on-chain program upgrade transaction</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step success" data-step="7">
+        <div class="flow-icon">💸</div>
+        <div class="flow-content">
+          <div class="flow-verb">ARBITER_RELEASED</div>
+          <div class="flow-desc">payment released to winning patch agent. All three Explorer links live on devnet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Agents -->
+<section class="section section-dark" id="agents">
+  <div class="container">
+    <div class="section-label">The Swarm</div>
+    <h2 class="section-title">Six agents. One mission.</h2>
+    <div class="agent-grid">
+      <div class="agent-card" data-agent="detector">
+        <div class="agent-header">
+          <span class="agent-icon">🔍</span>
+          <div>
+            <div class="agent-name">exploit-detector</div>
+            <div class="agent-role">Buyer + Orchestrator</div>
+          </div>
+          <span class="agent-key-badge keys">holds keys</span>
+        </div>
+        <p class="agent-desc">Monitors Solana program transactions. On exploit detection, broadcasts WANT, opens arbiter escrow, gates release on verified deployment.</p>
+        <div class="agent-tags">
+          <span class="tag">CoralOS buyer</span>
+          <span class="tag">arbiter escrow</span>
+          <span class="tag">policy enforce()</span>
+        </div>
+      </div>
+
+      <div class="agent-card" data-agent="fast">
+        <div class="agent-header">
+          <span class="agent-icon">⚡</span>
+          <div>
+            <div class="agent-name">patch-fast</div>
+            <div class="agent-role">Speed Specialist</div>
+          </div>
+          <span class="agent-key-badge wallet">wallet</span>
+        </div>
+        <p class="agent-desc">checked_sub only. Ships in 5 seconds. Cheapest bid at 0.005 SOL. Confidence 72%. The fast play when every second counts.</p>
+        <div class="agent-tags">
+          <span class="tag">0.005 SOL floor</span>
+          <span class="tag">5s delivery</span>
+          <span class="tag">72% confidence</span>
+        </div>
+      </div>
+
+      <div class="agent-card" data-agent="deep">
+        <div class="agent-header">
+          <span class="agent-icon">🔬</span>
+          <div>
+            <div class="agent-name">patch-deep</div>
+            <div class="agent-role">Thoroughness Specialist</div>
+          </div>
+          <span class="agent-key-badge wallet">wallet</span>
+        </div>
+        <p class="agent-desc">Static analysis plus full invariant assertions. 30 seconds. Premium 0.015 SOL. Confidence 95%. Zero clippy warnings.</p>
+        <div class="agent-tags">
+          <span class="tag">0.015 SOL floor</span>
+          <span class="tag">30s delivery</span>
+          <span class="tag">95% confidence</span>
+        </div>
+      </div>
+
+      <div class="agent-card" data-agent="hybrid">
+        <div class="agent-header">
+          <span class="agent-icon">🔀</span>
+          <div>
+            <div class="agent-name">patch-hybrid</div>
+            <div class="agent-role">Balanced Specialist</div>
+          </div>
+          <span class="agent-key-badge wallet">wallet</span>
+        </div>
+        <p class="agent-desc">Anchor constraint macros plus checked_sub. 15 seconds. Mid bid 0.010 SOL. Confidence 91%. Best of both worlds.</p>
+        <div class="agent-tags">
+          <span class="tag">0.010 SOL floor</span>
+          <span class="tag">15s delivery</span>
+          <span class="tag">91% confidence</span>
+        </div>
+      </div>
+
+      <div class="agent-card" data-agent="verifier">
+        <div class="agent-header">
+          <span class="agent-icon">✅</span>
+          <div>
+            <div class="agent-name">sandbox-verifier</div>
+            <div class="agent-role">Independent Verifier</div>
+          </div>
+          <span class="agent-key-badge keyless">keyless</span>
+        </div>
+        <p class="agent-desc">Replays the exploit transaction against the patch. Verifies sha256 hash integrity. Emits VERIFIED pass/fail. Holds no keys, moves no funds.</p>
+        <div class="agent-tags">
+          <span class="tag">exploit replay</span>
+          <span class="tag">hash verification</span>
+          <span class="tag">no funds</span>
+        </div>
+      </div>
+
+      <div class="agent-card" data-agent="deployer">
+        <div class="agent-header">
+          <span class="agent-icon">🚀</span>
+          <div>
+            <div class="agent-name">threshold-deployer</div>
+            <div class="agent-role">Consensus Gate</div>
+          </div>
+          <span class="agent-key-badge keys">upgrade auth</span>
+        </div>
+        <p class="agent-desc">Holds upgrade authority shard. Deploys only when 2-of-3 verified passes are received. Broadcasts on-chain program upgrade transaction.</p>
+        <div class="agent-tags">
+          <span class="tag">2-of-3 threshold</span>
+          <span class="tag">upgrade authority</span>
+          <span class="tag">on-chain tx</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Live Demo Simulator -->
+<section class="section" id="demo">
+  <div class="container">
+    <div class="section-label">Interactive Demo</div>
+    <h2 class="section-title">Watch the swarm respond.</h2>
+    <p class="section-sub">
+      This simulates the exact message sequence that runs on Solana devnet.
+      Press the button to trigger an emergency and watch each agent react in real time.
+    </p>
+
+    <div class="demo-layout">
+      <!-- Control panel -->
+      <div class="demo-controls">
+        <div class="demo-program-box">
+          <div class="demo-label">Monitored Program</div>
+          <div class="demo-program-id">VAULT_PROG_<span id="prog-short">7xKp...4mRt</span></div>
+          <div class="demo-status" id="demo-status">
+            <span class="status-dot idle"></span>
+            <span id="status-text">Monitoring... no exploit detected</span>
+          </div>
+        </div>
+
+        <button class="btn-danger" id="trigger-btn" onclick="triggerExploit()">
+          <span id="btn-text">⚡ Trigger Exploit</span>
+        </button>
+
+        <button class="btn-ghost-sm" id="reset-btn" onclick="resetDemo()" style="display:none">
+          Reset Demo
+        </button>
+
+        <div class="demo-timer-box" id="timer-box" style="display:none">
+          <div class="demo-label">Time to patch</div>
+          <div class="demo-timer" id="demo-timer">0.0s</div>
+        </div>
+
+        <div class="escrow-box" id="escrow-box" style="display:none">
+          <div class="demo-label">Arbiter Escrow</div>
+          <div class="escrow-state" id="escrow-state">LOCKED</div>
+          <div class="escrow-amount">0.015 SOL</div>
+        </div>
+      </div>
+
+      <!-- State machine -->
+      <div class="demo-state-machine">
+        <div class="state-steps" id="state-steps">
+          <div class="state-item pending" id="state-IDLE">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">IDLE</div>
+              <div class="state-detail">Polling program every 2s</div>
+            </div>
+          </div>
+          <div class="state-connector"></div>
+          <div class="state-item pending" id="state-DETECTED">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">EXPLOIT_DETECTED</div>
+              <div class="state-detail" id="detail-DETECTED">integer_overflow in withdraw()</div>
+            </div>
+          </div>
+          <div class="state-connector"></div>
+          <div class="state-item pending" id="state-BIDDING">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">PATCHING</div>
+              <div class="state-detail" id="detail-BIDDING">Collecting bids from 3 agents</div>
+            </div>
+          </div>
+          <div class="state-connector"></div>
+          <div class="state-item pending" id="state-DEPOSITED">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">DEPOSITED</div>
+              <div class="state-detail" id="detail-DEPOSITED">Arbiter escrow funded on devnet</div>
+            </div>
+          </div>
+          <div class="state-connector"></div>
+          <div class="state-item pending" id="state-VERIFIED">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">VERIFIED</div>
+              <div class="state-detail" id="detail-VERIFIED">Sandbox verifier: exploit blocked</div>
+            </div>
+          </div>
+          <div class="state-connector"></div>
+          <div class="state-item pending" id="state-DEPLOYED">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">DEPLOYED</div>
+              <div class="state-detail" id="detail-DEPLOYED">Program upgraded on-chain</div>
+            </div>
+          </div>
+          <div class="state-connector"></div>
+          <div class="state-item pending" id="state-RELEASED">
+            <div class="state-dot"></div>
+            <div class="state-info">
+              <div class="state-name">RELEASED</div>
+              <div class="state-detail" id="detail-RELEASED">Payment sent to winning agent</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent message log -->
+      <div class="demo-log-panel">
+        <div class="log-header">
+          <span>Agent Messages</span>
+          <span class="log-count" id="log-count">0 messages</span>
+        </div>
+        <div class="log-body" id="log-body">
+          <div class="log-empty">Waiting for exploit trigger...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bid table -->
+    <div class="bid-section" id="bid-section" style="display:none">
+      <h3 class="bid-title">Patch Agent Competition</h3>
+      <div class="bid-table">
+        <div class="bid-row header">
+          <span>Agent</span><span>Strategy</span><span>Price</span><span>Confidence</span><span>Est. Time</span><span>Verdict</span>
+        </div>
+        <div class="bid-row" id="bid-fast">
+          <span class="agent-pill fast">patch-fast</span>
+          <span>checked_sub</span>
+          <span class="price">0.005 SOL</span>
+          <span>72%</span>
+          <span>5s</span>
+          <span class="verdict pending-v" id="verdict-fast">waiting...</span>
+        </div>
+        <div class="bid-row" id="bid-hybrid">
+          <span class="agent-pill hybrid">patch-hybrid</span>
+          <span>Anchor + checked</span>
+          <span class="price">0.010 SOL</span>
+          <span>91%</span>
+          <span>15s</span>
+          <span class="verdict pending-v" id="verdict-hybrid">waiting...</span>
+        </div>
+        <div class="bid-row" id="bid-deep">
+          <span class="agent-pill deep">patch-deep</span>
+          <span>static analysis</span>
+          <span class="price">0.015 SOL</span>
+          <span>95%</span>
+          <span>30s</span>
+          <span class="verdict pending-v" id="verdict-deep">waiting...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final result -->
+    <div class="result-box" id="result-box" style="display:none">
+      <div class="result-icon">✅</div>
+      <h3>Exploit Blocked. Payment Released.</h3>
+      <p>Winning patch: <strong id="winning-patch">patch-deep</strong> &bull; Time to patch: <strong id="final-time">47.3s</strong></p>
+      <div class="explorer-links">
+        <a class="explorer-link" id="link-deposit" href="https://explorer.solana.com/?cluster=devnet" target="_blank" rel="noreferrer">
+          <span class="link-label">Deposit Tx</span>
+          <span class="link-sig" id="sig-deposit">loading...</span>
+        </a>
+        <a class="explorer-link" id="link-upgrade" href="https://explorer.solana.com/?cluster=devnet" target="_blank" rel="noreferrer">
+          <span class="link-label">Upgrade Tx</span>
+          <span class="link-sig" id="sig-upgrade">loading...</span>
+        </a>
+        <a class="explorer-link" id="link-release" href="https://explorer.solana.com/?cluster=devnet" target="_blank" rel="noreferrer">
+          <span class="link-label">Release Tx</span>
+          <span class="link-sig" id="sig-release">loading...</span>
+        </a>
+      </div>
+      <p class="result-note">These are real Solana devnet transactions. Click any link to verify on Solana Explorer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section class="section section-dark" id="architecture">
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">Built on proven rails.</h2>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">🪸</div>
+        <h3>CoralOS</h3>
+        <p>Agent orchestration, session management, MCP coordination. Six-agent graph declared in JSON, spawned as Docker containers, communicated over shared message bus.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">◎</div>
+        <h3>Solana</h3>
+        <p>Arbiter-gated escrow program deployed on devnet. Funds locked on deposit, released only through neutral 3rd signer after verified delivery.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">📋</div>
+        <h3>Patch Registry</h3>
+        <p>Pre-audited patch candidates per vulnerability class. Agents compete on price and analysis depth, not on generating Rust from scratch under fire.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🛡️</div>
+        <h3>Policy Engine</h3>
+        <p>Every deposit and release passes enforce(). Spend caps, payout binding, verifier gate. A missing VERIFIED verdict leaves funds in escrow, refundable after deadline.</p>
+      </div>
+    </div>
+    <div class="proto-table">
+      <div class="proto-header">Wire Protocol Extensions</div>
+      <div class="proto-row">
+        <span class="proto-verb">EXPLOIT_DETECTED</span>
+        <span class="proto-desc">round= program= exploit_tx= detected_at= vuln_class=</span>
+      </div>
+      <div class="proto-row">
+        <span class="proto-verb">PATCH_SUBMITTED</span>
+        <span class="proto-desc">round= strategy= patch_id= confidence= price= by= est_secs=</span>
+      </div>
+      <div class="proto-row">
+        <span class="proto-verb">SANDBOX_RESULT</span>
+        <span class="proto-desc">round= patch_id= blocked= tests_passed= tests_failed= by= reason=</span>
+      </div>
+      <div class="proto-row">
+        <span class="proto-verb">THRESHOLD_STATUS</span>
+        <span class="proto-desc">round= needed= received= met= winning_patch= by=</span>
+      </div>
+      <div class="proto-row">
+        <span class="proto-verb">PATCH_DEPLOYED</span>
+        <span class="proto-desc">round= patch_id= upgrade_tx= program= elapsed_ms= by=</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick start -->
+<section class="section" id="quickstart">
+  <div class="container">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Run it yourself in 5 minutes.</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h3>Clone and setup</h3>
+        <pre class="code-block">git clone https://github.com/Tasfia-17/flashpatch.git
+cd flashpatch
+npm install --prefix scripts
+node scripts/setup.js</pre>
+        <p>Generates two devnet wallets. Fund the buyer at <a href="https://faucet.solana.com" target="_blank" rel="noreferrer">faucet.solana.com</a>.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h3>Configure .env</h3>
+        <pre class="code-block">VENICE_API_KEY=your_key_here
+SIMULATE_EXPLOIT=1
+SECURITY_BUDGET_SOL=0.05
+THRESHOLD=2</pre>
+        <p>Free LLM credits: sign up at <a href="https://venice.ai" target="_blank" rel="noreferrer">venice.ai</a>, redeem code <code>IMPERIAL50</code>.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h3>Build and launch</h3>
+        <pre class="code-block">docker compose up -d coral
+bash build-flashpatch.sh
+npm run flashpatch</pre>
+        <p>Prints the session ID. Exploit fires 5 seconds after startup in simulate mode.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h3>Open dashboard</h3>
+        <pre class="code-block">FLASHPATCH_SESSION_ID=&lt;id&gt; \
+  npm run flashpatch:feed
+
+npm run flashpatch:web
+# opens localhost:3030</pre>
+        <p>Watch all six agents transact live. Three Explorer links at the end.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="logo-bolt">⚡</span>
+        <span class="footer-name">FlashPatch</span>
+        <span class="footer-tag">Imperial AI Agent Hackathon EP5</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/Tasfia-17/flashpatch" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://github.com/trilltino/solana_coralOS" target="_blank" rel="noreferrer">Starter Kit</a>
+        <a href="https://docs.coralos.ai" target="_blank" rel="noreferrer">CoralOS Docs</a>
+        <a href="https://explorer.solana.com/?cluster=devnet" target="_blank" rel="noreferrer">Solana Explorer</a>
+      </div>
+    </div>
+    <div class="footer-bottom">Built by Tasfia Chowdhury &bull; MIT License</div>
+  </div>
+</footer>
+
+<script src="demo.js"></script>
+</body>
+</html>
