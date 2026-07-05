@@ -608,3 +608,16 @@ a { text-decoration: none; color: inherit; }
   .protocol-grid { grid-template-columns: 1fr; }
   .steps-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══ VIDEO SECTION ══════════════════════════════════════════ */
+.video-section { background: rgba(245,158,11,0.04); }
+.video-wrapper {
+  border-radius: 22px;
+  overflow: hidden;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 10px;
+  box-shadow: 0 8px 40px rgba(245,158,11,0.18);
+}
+.video-wrapper video { border-radius: 14px; }
+.video-download-row { text-align: center; }
