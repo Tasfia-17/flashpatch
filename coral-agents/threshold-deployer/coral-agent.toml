@@ -1,0 +1,24 @@
+# Threshold Deployer manifest
+edition = 4
+
+[agent]
+name = "threshold-deployer"
+version = "0.1.0"
+description = "Holds a keypair shard with program upgrade authority. Deploys the winning patch when the configured threshold of verified patch agents agree. Broadcasts PATCH_DEPLOYED with the on-chain upgrade tx."
+summary = "FlashPatch threshold deployer — consensus-gated program upgrade authority."
+
+[agent.license]
+type = "spdx"
+expression = "MIT"
+
+[options]
+DEPLOYER_KEYPAIR_B58  = { type = "string", description = "Keypair with program upgrade authority shard" }
+SELLER_WALLET         = { type = "string", description = "Wallet receiving deployer fee" }
+AGENT_NAME            = { type = "string", default = "threshold-deployer" }
+THRESHOLD             = { type = "f64",    default = 2, description = "Number of verified patches required before deployment" }
+VULNERABLE_PROGRAM_ID = { type = "string", default = "" }
+SOLANA_RPC_URL        = { type = "string", default = "" }
+TRACE                 = { type = "string", default = "" }
+
+[runtimes.docker]
+image = "threshold-deployer:0.1.0"
