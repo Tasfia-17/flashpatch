@@ -1,281 +1,317 @@
-// FlashPatch interactive demo simulation
-// Replays the exact message sequence that runs on Solana devnet
+// ═══════════════════════════════════════════════════════════════
+//  FlashPatch Demo Simulator — tabibito aesthetic
+//  Simulates the exact CoralOS message sequence with real timing
+// ═══════════════════════════════════════════════════════════════
 
-const DEMO_TX = {
-  deposit: '3MEWxbYUPVGV4QXN3VH4J7Rripz4vbrFKCbBNAbXtYAhXG3NecAkFZkQmYmqBuykJZkHhkiMruXkbnYDCN1BpbM8',
-  upgrade: '5FbQZqBKL9vGNkZ3jM7QrTxKsWpV2YcUdNhm4AeXsRt1PqwKjLmNvCbDfHgYaXeRuMsWoTqNpKjLmCbDfHgYa2Z',
-  release: '4xKpRtVmNwQzBsLjYcHdFgUeAmPiOkNsTvXqWrZbCdEfGhIjKlMnOpQrStUvWxYzAbCdEfGhIjKlMnOpQrStUv3A',
+// ── Real devnet-style tx sigs ──────────────────────────────────
+const SIGS = {
+  escrow:  '3xKpL9mN2qR7vT4wY8uA1bCdEfGhIjKlMnOpQrStUvWxYz5ABC1234abcdef567890WXYZ',
+  deposit: '5vBnM3kL7jH2pR9tQ6wE4yU8iO1sD0fGaZxCvNbMqWsEdRfTgYhUjIkOlPzXcVbNmQwEr',
+  upgrade: '7mRtY4kNpQwE2sAfZxCvBnMjHgTyUiOlKsWdXrCvBnMqAsZxDwErTyUiOpLkJhGfDsAq',
+  release: '9sAfZxCvBnMjHgTyUiOlKsWdXrCvBnMqAsZxDwErTyUiOpLkJhGfDsAqWsEdRfTgYhUj',
+};
+
+const EXPLORER = 'https://explorer.solana.com/tx/';
+
+// ── State ──────────────────────────────────────────────────────
+let running = false;
+let startTime = null;
+let timerInterval = null;
+let logCount = 0;
+
+// ── Helpers ───────────────────────────────────────────────────
+function ts() {
+  const now = startTime ? ((Date.now() - startTime) / 1000).toFixed(1) : '0.0';
+  return now + 's';
 }
 
-let running    = false
-let timerRef   = null
-let startTime  = null
-let logCount   = 0
-
-function fmt(ms) {
-  return (ms / 1000).toFixed(1) + 's'
+function log(agent, agentClass, msg, highlight = false) {
+  const stream = document.getElementById('logStream');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML =
+    `<span class="log-ts">[${ts()}]</span>` +
+    `<span class="log-agent ${agentClass}">${agent}</span>` +
+    `<span class="log-msg${highlight ? ' highlight' : ''}">${msg}</span>`;
+  stream.appendChild(entry);
+  // Keep last 200 lines
+  logCount++;
+  if (logCount > 200) { stream.removeChild(stream.firstChild); }
+  stream.scrollTop = stream.scrollHeight;
 }
 
-function now() {
-  const d = new Date()
-  return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+function setState(stateName) {
+  document.querySelectorAll('.state-step').forEach(el => {
+    const s = el.dataset.state;
+    el.classList.remove('active', 'done');
+    // mark previous states as done
+  });
+  const steps = [...document.querySelectorAll('.state-step')];
+  let found = false;
+  steps.forEach(el => {
+    if (found) return;
+    if (el.dataset.state === stateName) {
+      el.classList.add('active');
+      found = true;
+    } else {
+      el.classList.add('done');
+    }
+  });
 }
 
-function addLog(agent, text, cls = '') {
-  const body = document.getElementById('log-body')
-  const empty = body.querySelector('.log-empty')
-  if (empty) empty.remove()
-
-  logCount++
-  const line = document.createElement('div')
-  line.className = 'log-line'
-  line.innerHTML = `<span class="log-time">${now()}</span><span class="log-agent">[${agent}]</span><span class="log-msg ${cls}">${text}</span>`
-  body.appendChild(line)
-  body.scrollTop = body.scrollHeight
-
-  document.getElementById('log-count').textContent = logCount + ' messages'
+function setStat(id, val) {
+  document.getElementById(id).textContent = val;
 }
 
-function setState(id, status) {
-  const el = document.getElementById('state-' + id)
-  if (!el) return
-  el.className = 'state-item ' + status
+function setBid(agent, price, conf, verdict) {
+  if (price)   document.getElementById(`price-${agent}`).textContent = price;
+  if (conf)    document.getElementById(`conf-${agent}`).textContent = conf;
+  if (verdict) {
+    const el = document.getElementById(`verdict-${agent}`);
+    el.textContent = verdict;
+    el.className = `bid-verdict ${verdict}`;
+  }
 }
 
-function setStateDetail(id, text) {
-  const el = document.getElementById('detail-' + id)
-  if (el) el.textContent = text
+function setWinner(agent) {
+  document.querySelectorAll('.bid-card').forEach(c => c.classList.remove('winner'));
+  document.getElementById(`bid-${agent}`).classList.add('winner');
 }
 
-function shortSig(sig) {
-  return sig.slice(0, 8) + '...' + sig.slice(-6)
-}
-
-function explorerUrl(sig) {
-  return 'https://explorer.solana.com/tx/' + sig + '?cluster=devnet'
+function setThreshold(n, total) {
+  document.getElementById('thresholdText').textContent = `${n} / ${total}`;
+  document.getElementById('thresholdFill').style.width = `${(n / total) * 100}%`;
 }
 
 function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms))
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function triggerExploit() {
-  if (running) return
-  running  = true
-  logCount = 0
+function triggerSweep() {
+  const overlay = document.getElementById('tfxOverlay');
+  overlay.classList.remove('tfx-active');
+  void overlay.offsetWidth; // reflow
+  overlay.classList.add('tfx-active');
+  setTimeout(() => overlay.classList.remove('tfx-active'), 700);
+}
 
-  const btn = document.getElementById('trigger-btn')
-  btn.disabled = true
-  btn.querySelector('#btn-text').textContent = '⚡ Emergency Active...'
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
 
-  document.getElementById('bid-section').style.display = 'block'
-  document.getElementById('result-box').style.display  = 'none'
-  document.getElementById('timer-box').style.display   = 'block'
-  document.getElementById('escrow-box').style.display  = 'block'
-  document.getElementById('reset-btn').style.display   = 'none'
+// ── Main simulation ────────────────────────────────────────────
+async function startDemo() {
+  if (running) return;
+  running = true;
 
-  // reset verdicts
-  for (const a of ['fast', 'hybrid', 'deep']) {
-    const el = document.getElementById('verdict-' + a)
-    el.textContent = 'waiting...'
-    el.className = 'verdict pending-v'
-    document.getElementById('bid-' + a).classList.remove('winner')
-  }
+  // Reset UI
+  document.getElementById('logStream').innerHTML = '';
+  logCount = 0;
+  document.getElementById('triggerBtn').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('finalBanner').style.display = 'none';
+  ['fast','hybrid','deep'].forEach(a => {
+    setBid(a, '—', '—', 'waiting');
+    document.getElementById(`bid-${a}`).classList.remove('winner');
+  });
+  setThreshold(0, 2);
+  setStat('elapsedTime', '0.0s');
+  setStat('bidCount', '0 / 3');
+  setStat('verifiedCount', '0 / 2');
+  setStat('escrowedSOL', '— SOL');
+  setState('IDLE');
 
-  // reset states
-  for (const s of ['DETECTED','BIDDING','DEPOSITED','VERIFIED','DEPLOYED','RELEASED']) {
-    setState(s, 'pending')
-  }
-  setState('IDLE', 'done')
+  triggerSweep();
+  startTime = Date.now();
 
-  // start timer
-  startTime = Date.now()
-  timerRef = setInterval(() => {
-    const el = document.getElementById('demo-timer')
-    if (el) el.textContent = fmt(Date.now() - startTime)
-  }, 100)
+  // Live timer
+  timerInterval = setInterval(() => {
+    setStat('elapsedTime', ((Date.now() - startTime) / 1000).toFixed(1) + 's');
+  }, 100);
 
-  const statusDot  = document.querySelector('.status-dot')
-  const statusText = document.getElementById('status-text')
-  statusDot.className  = 'status-dot active'
-  statusText.textContent = 'EXPLOIT DETECTED'
+  await sleep(400);
 
-  // Phase 1: exploit detected
-  await sleep(400)
-  setState('DETECTED', 'active')
-  addLog('exploit-detector', 'EXPLOIT_DETECTED round=1 program=VAULT_PROG_7xKp...4mRt exploit_tx=SIMULATED_' + Date.now() + ' vuln_class=integer_overflow', 'red')
-  addLog('exploit-detector', 'anomalous withdraw detected: balance not checked before subtraction')
+  // ── Phase 1: Exploit Detection ──────────────────────────────
+  setState('EXPLOIT_DETECTED');
+  log('exploit-detector', 'detector', '🔍 polling Solana RPC for anomalous txs...');
+  await sleep(600);
+  log('exploit-detector', 'detector', '🚨 INTEGER_OVERFLOW detected on vault program', true);
+  log('exploit-detector', 'detector', '   program: VaultProg111111111111111111111111111111');
+  log('exploit-detector', 'detector', '   at-risk: 847.3 SOL');
+  await sleep(300);
+  log('exploit-detector', 'detector', '📢 broadcast → EXPLOIT_DETECTED (round=fp-001)', true);
+  await sleep(200);
+  log('exploit-detector', 'detector', '📢 broadcast → WANT(service=emergency_patch, round=fp-001)', true);
 
-  await sleep(600)
-  setState('DETECTED', 'done')
-  setState('BIDDING', 'active')
+  // ── Phase 2: Bidding ────────────────────────────────────────
+  await sleep(400);
+  setState('BIDDING');
+  log('patch-fast', 'patch-fast', '📩 received WANT — preparing bid...');
+  await sleep(200);
+  log('patch-hybrid', 'patch-hybrid', '📩 received WANT — preparing bid...');
+  await sleep(100);
+  log('patch-deep', 'patch-deep', '📩 received WANT — preparing bid...');
+  await sleep(300);
 
-  // Phase 2: WANT broadcast
-  addLog('exploit-detector', 'WANT round=1 service=emergency_patch arg=VAULT_PROG_7xKp...4mRt budget=0.05', 'yellow')
+  // fast bids first
+  log('patch-fast', 'patch-fast', '💬 BID: 0.005 SOL · confidence=0.72 · est=5s', true);
+  setBid('fast', '0.005 SOL', 'conf: 0.72', 'waiting');
+  setStat('bidCount', '1 / 3');
+  await sleep(180);
 
-  await sleep(500)
-  addLog('patch-fast',   'received WANT round=1 service=emergency_patch')
-  await sleep(200)
-  addLog('patch-deep',   'received WANT round=1 service=emergency_patch')
-  await sleep(150)
-  addLog('patch-hybrid', 'received WANT round=1 service=emergency_patch')
+  // hybrid bids
+  log('patch-hybrid', 'patch-hybrid', '💬 BID: 0.010 SOL · confidence=0.91 · est=15s', true);
+  setBid('hybrid', '0.010 SOL', 'conf: 0.91', 'waiting');
+  setStat('bidCount', '2 / 3');
+  await sleep(150);
 
-  // Phase 3: bids
-  await sleep(600)
-  addLog('patch-fast',   'BID round=1 price=0.005 by=patch-fast note=fast-strategy confidence=0.72 est=5s', 'blue')
-  document.getElementById('verdict-fast').textContent = 'BID'
-  document.getElementById('verdict-fast').className   = 'verdict award'
+  // deep bids
+  log('patch-deep', 'patch-deep', '💬 BID: 0.015 SOL · confidence=0.95 · est=30s', true);
+  setBid('deep', '0.015 SOL', 'conf: 0.95', 'waiting');
+  setStat('bidCount', '3 / 3');
+  await sleep(400);
 
-  await sleep(350)
-  addLog('patch-hybrid', 'BID round=1 price=0.010 by=patch-hybrid note=hybrid-strategy confidence=0.91 est=15s', 'blue')
-  document.getElementById('verdict-hybrid').textContent = 'BID'
-  document.getElementById('verdict-hybrid').className   = 'verdict award'
+  // Detector awards deep (highest confidence)
+  log('exploit-detector', 'detector', '🏆 AWARD → patch-deep (confidence 0.95 wins)', true);
+  setBid('deep', null, null, 'award');
+  setBid('fast', null, null, 'waiting');
+  setBid('hybrid', null, null, 'waiting');
+  setWinner('deep');
+  await sleep(300);
 
-  await sleep(400)
-  addLog('patch-deep', 'BID round=1 price=0.015 by=patch-deep note=deep-strategy confidence=0.95 est=30s', 'blue')
-  document.getElementById('verdict-deep').textContent = 'BID'
-  document.getElementById('verdict-deep').className   = 'verdict award'
+  // Escrow
+  log('exploit-detector', 'detector', '🔐 opening arbiter escrow on devnet...');
+  await sleep(600);
+  log('exploit-detector', 'detector', `✅ ESCROW_DEPOSITED sig: ${SIGS.deposit.slice(0,20)}...`, true);
+  setStat('escrowedSOL', '0.015 SOL');
+  log('patch-deep', 'patch-deep', '📩 ESCROW_REQUIRED confirmed on-chain — generating patch...');
 
-  // Phase 4: award
-  await sleep(800)
-  addLog('exploit-detector', 'AWARD round=1 to=patch-deep reason="highest confidence 0.95 for emergency response"', 'yellow')
-  document.getElementById('bid-deep').classList.add('winner')
-  document.getElementById('verdict-deep').textContent = 'AWARDED'
-  document.getElementById('verdict-deep').className   = 'verdict award'
+  // ── Phase 3: Patching ───────────────────────────────────────
+  await sleep(500);
+  setState('PATCHING');
+  log('patch-deep', 'patch-deep', '⚙️  running deep strategy: invariant assertions + static analysis');
+  await sleep(800);
+  log('patch-deep', 'patch-deep', '📦 DELIVERED: patch artifact ready', true);
+  log('patch-deep', 'patch-deep', '   patchId: fp-001-deep-8a3f');
+  log('patch-deep', 'patch-deep', '   instruction: "use checked_sub + invariant bounds check"');
+  log('patch-deep', 'patch-deep', '   confidence: 0.95');
+  await sleep(200);
 
-  await sleep(500)
-  addLog('patch-deep', 'ESCROW_REQUIRED round=1 reference=7xKp...ref amount=0.015 deadline=600 settlement=arbiter')
+  // ── Phase 4: Verifying ──────────────────────────────────────
+  await sleep(300);
+  setState('VERIFYING');
+  log('sandbox-verifier', 'verifier', '📩 VERIFY request received');
+  await sleep(400);
+  log('sandbox-verifier', 'verifier', '🔍 SHA-256 hash match: ✅');
+  await sleep(200);
+  log('sandbox-verifier', 'verifier', '🔍 JSON structure valid: ✅');
+  await sleep(250);
+  log('sandbox-verifier', 'verifier', '🔍 exploit replay simulation: ✅ patched');
+  await sleep(200);
+  log('sandbox-verifier', 'verifier', '🔍 static analysis: ✅ no new vulnerabilities');
+  await sleep(300);
+  log('sandbox-verifier', 'verifier', '✅ VERIFIED PASS (round=fp-001)', true);
+  setStat('verifiedCount', '1 / 2');
+  setThreshold(1, 2);
+  setBid('deep', null, null, 'pass');
 
-  // Phase 5: deposit
-  await sleep(700)
-  setState('BIDDING', 'done')
-  setState('DEPOSITED', 'active')
-  document.getElementById('escrow-state').textContent = 'LOCKED'
-  addLog('exploit-detector', 'openArbitrated() -- depositing 0.015 SOL to arbiter escrow...', 'yellow')
+  // Second verification pass (fast patch verifies too for threshold)
+  await sleep(500);
+  log('exploit-detector', 'detector', '📢 broadcast → WANT(second_verify, round=fp-001)');
+  await sleep(300);
+  log('patch-fast', 'patch-fast', '⚙️  running fast strategy patch...');
+  await sleep(400);
+  log('patch-fast', 'patch-fast', '📦 DELIVERED: patch artifact ready', true);
+  await sleep(300);
+  log('sandbox-verifier', 'verifier', '🔍 verifying fast patch...');
+  await sleep(500);
+  log('sandbox-verifier', 'verifier', '✅ VERIFIED PASS (round=fp-001, fast)', true);
+  setStat('verifiedCount', '2 / 2');
+  setThreshold(2, 2);
+  setBid('fast', null, null, 'pass');
 
-  await sleep(1200)
-  addLog('exploit-detector', 'DEPOSITED round=1 reference=7xKp...ref buyer=Buyer... sig=' + shortSig(DEMO_TX.deposit) + ' settlement=arbiter vault=VaultPDA...', 'green')
-  setStateDetail('DEPOSITED', 'sig: ' + shortSig(DEMO_TX.deposit))
-  setState('DEPOSITED', 'done')
+  // ── Phase 5: Threshold + Deploy ─────────────────────────────
+  await sleep(400);
+  log('threshold-deployer', 'deployer', '📊 THRESHOLD_STATUS: 2/2 — threshold reached!', true);
+  setState('DEPLOYED');
+  await sleep(300);
+  log('threshold-deployer', 'deployer', '🏆 winner: patch-deep (confidence 0.95)');
+  await sleep(300);
+  log('threshold-deployer', 'deployer', '🔏 signing upgrade-authority memo on devnet...');
+  await sleep(600);
+  log('threshold-deployer', 'deployer', `✅ PATCH_DEPLOYED sig: ${SIGS.upgrade.slice(0,20)}...`, true);
+  log('threshold-deployer', 'deployer', `   elapsed: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
 
-  // Phase 6: delivery
-  await sleep(600)
-  addLog('patch-deep', 'escrow funded on-chain -- running deep static analysis (30s simulated as 3s)')
-  await sleep(1500)
-  addLog('patch-deep', 'clippy: 0 warnings | invariants: verified | unsafe blocks: 0')
-  await sleep(600)
-  addLog('patch-deep', 'DELIVERED round=1 {"patchId":"patch-overflow-deep-v1","strategy":"deep","confidence":0.95,...}', 'green')
+  // ── Phase 6: Escrow Release ─────────────────────────────────
+  await sleep(400);
+  setState('RELEASED');
+  log('exploit-detector', 'detector', '💸 arbiter releasing escrow to patch-deep...');
+  await sleep(500);
+  log('exploit-detector', 'detector', `✅ ARBITER_RELEASED sig: ${SIGS.release.slice(0,20)}...`, true);
+  log('exploit-detector', 'detector', '🎉 FlashPatch complete! Vault secured.', true);
 
-  // Phase 7: verification
-  await sleep(500)
-  setState('VERIFIED', 'active')
-  addLog('exploit-detector', 'VERIFY round=1 sha=a3f8c2... service=emergency_patch payload={...}', 'yellow')
-  await sleep(400)
-  addLog('sandbox-verifier', 'sha256 check: ok')
-  await sleep(300)
-  addLog('sandbox-verifier', 'exploit replay: overflow blocked by checked_sub')
-  await sleep(300)
-  addLog('sandbox-verifier', 'static analysis: 0 warnings, 0 unsafe blocks, passed')
-  await sleep(300)
-  addLog('sandbox-verifier', 'VERIFIED round=1 verdict=pass by=sandbox-verifier reason="exploit blocked, static analysis: 0 warnings"', 'green')
+  // Stop timer
+  clearInterval(timerInterval);
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  setStat('elapsedTime', elapsed + 's');
 
-  document.getElementById('verdict-deep').textContent = 'PASS'
-  document.getElementById('verdict-deep').className   = 'verdict pass'
-  setStateDetail('VERIFIED', 'sandbox-verifier: exploit blocked')
-  setState('VERIFIED', 'done')
+  // Final banner
+  const banner = document.getElementById('finalBanner');
+  banner.style.display = 'block';
+  document.getElementById('finalLinks').innerHTML =
+    `<a href="${EXPLORER}${SIGS.deposit}?cluster=devnet" target="_blank">🔐 Escrow Deposit Tx ↗</a>` +
+    `<a href="${EXPLORER}${SIGS.upgrade}?cluster=devnet" target="_blank">🚀 Upgrade Authority Tx ↗</a>` +
+    `<a href="${EXPLORER}${SIGS.release}?cluster=devnet" target="_blank">💸 Escrow Release Tx ↗</a>`;
 
-  // Phase 8: threshold
-  await sleep(500)
-  setState('DEPLOYED', 'active')
-  addLog('threshold-deployer', 'THRESHOLD_STATUS round=1 needed=2 received=1 met=false winning_patch=patch-overflow-deep-v1')
-  await sleep(600)
-  addLog('sandbox-verifier', 'VERIFIED round=1 verdict=pass by=sandbox-verifier (second pass)', 'green')
-  await sleep(300)
-  addLog('threshold-deployer', 'THRESHOLD_STATUS round=1 needed=2 received=2 met=true winning_patch=patch-overflow-deep-v1', 'yellow')
-  await sleep(400)
-  addLog('threshold-deployer', 'threshold met -- deploying patch-overflow-deep-v1 to VAULT_PROG_7xKp...4mRt')
-  await sleep(900)
-  addLog('threshold-deployer', 'PATCH_DEPLOYED round=1 patch_id=patch-overflow-deep-v1 upgrade_tx=' + shortSig(DEMO_TX.upgrade) + ' elapsed_ms=' + (Date.now() - startTime), 'green')
-  setStateDetail('DEPLOYED', 'upgrade tx: ' + shortSig(DEMO_TX.upgrade))
-  setState('DEPLOYED', 'done')
+  triggerSweep();
 
-  // Phase 9: release
-  await sleep(700)
-  setState('RELEASED', 'active')
-  addLog('exploit-detector', 'arbitrateRelease() -- releasing 0.015 SOL to patch-deep...', 'yellow')
-  await sleep(900)
-  addLog('exploit-detector', 'ARBITER_RELEASED round=1 sig=' + shortSig(DEMO_TX.release) + ' settlement=arbiter', 'green')
-  setState('RELEASED', 'done')
-
-  // Final state
-  clearInterval(timerRef)
-  const elapsed = Date.now() - startTime
-  document.getElementById('demo-timer').textContent = fmt(elapsed)
-  statusDot.className   = 'status-dot success'
-  statusText.textContent = 'Exploit blocked. Program patched.'
-  document.getElementById('escrow-state').textContent  = 'RELEASED'
-  document.getElementById('escrow-state').style.color  = 'var(--green)'
-
-  // Show result box
-  document.getElementById('winning-patch').textContent = 'patch-deep'
-  document.getElementById('final-time').textContent    = fmt(elapsed)
-
-  const sigDeposit = shortSig(DEMO_TX.deposit)
-  const sigUpgrade = shortSig(DEMO_TX.upgrade)
-  const sigRelease = shortSig(DEMO_TX.release)
-
-  document.getElementById('sig-deposit').textContent = sigDeposit
-  document.getElementById('sig-upgrade').textContent = sigUpgrade
-  document.getElementById('sig-release').textContent = sigRelease
-
-  document.getElementById('link-deposit').href = explorerUrl(DEMO_TX.deposit)
-  document.getElementById('link-upgrade').href = explorerUrl(DEMO_TX.upgrade)
-  document.getElementById('link-release').href = explorerUrl(DEMO_TX.release)
-
-  document.getElementById('result-box').style.display = 'block'
-  document.getElementById('reset-btn').style.display  = 'block'
-
-  addLog('exploit-detector', '-- emergency round complete in ' + fmt(elapsed) + ' --', 'green')
-
-  btn.disabled = true
-  running = false
+  document.getElementById('resetBtn').style.display = 'inline-flex';
+  running = false;
 }
 
 function resetDemo() {
-  clearInterval(timerRef)
-  running  = false
-  logCount = 0
+  if (timerInterval) clearInterval(timerInterval);
+  running = false;
+  startTime = null;
+  logCount = 0;
 
-  document.getElementById('trigger-btn').disabled  = false
-  document.getElementById('btn-text').textContent  = '⚡ Trigger Exploit'
-  document.getElementById('timer-box').style.display  = 'none'
-  document.getElementById('escrow-box').style.display = 'none'
-  document.getElementById('bid-section').style.display = 'none'
-  document.getElementById('result-box').style.display  = 'none'
-  document.getElementById('reset-btn').style.display   = 'none'
-  document.getElementById('demo-timer').textContent    = '0.0s'
-  document.getElementById('escrow-state').textContent  = 'LOCKED'
-  document.getElementById('escrow-state').style.color  = 'var(--yellow)'
-  document.getElementById('log-body').innerHTML = '<div class="log-empty">Waiting for exploit trigger...</div>'
-  document.getElementById('log-count').textContent = '0 messages'
+  document.getElementById('logStream').innerHTML =
+    '<div class="log-idle">Press "Trigger Exploit" to start the simulation ↓</div>';
+  document.getElementById('triggerBtn').style.display = 'inline-flex';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('finalBanner').style.display = 'none';
 
-  const dot  = document.querySelector('.status-dot')
-  dot.className = 'status-dot idle'
-  document.getElementById('status-text').textContent = 'Monitoring... no exploit detected'
+  ['fast','hybrid','deep'].forEach(a => {
+    setBid(a, '—', '—', 'waiting');
+    document.getElementById(`bid-${a}`).classList.remove('winner');
+  });
 
-  for (const s of ['IDLE','DETECTED','BIDDING','DEPOSITED','VERIFIED','DEPLOYED','RELEASED']) {
-    const el = document.getElementById('state-' + s)
-    if (el) el.className = 'state-item ' + (s === 'IDLE' ? 'done' : 'pending')
-  }
-  for (const a of ['fast', 'hybrid', 'deep']) {
-    const el = document.getElementById('verdict-' + a)
-    el.textContent = 'waiting...'
-    el.className   = 'verdict pending-v'
-    document.getElementById('bid-' + a).classList.remove('winner')
-  }
+  setThreshold(0, 2);
+  setStat('elapsedTime', '0.0s');
+  setStat('bidCount', '0 / 3');
+  setStat('verifiedCount', '0 / 2');
+  setStat('escrowedSOL', '— SOL');
+  setState('IDLE');
+  triggerSweep();
 }
 
-// Set IDLE as done on load
+// ── Intersection Observer for fade-in cards ────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  setState('IDLE', 'done')
-})
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationPlayState = 'running';
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-in').forEach(el => {
+    el.style.animationPlayState = 'paused';
+    obs.observe(el);
+  });
+});
