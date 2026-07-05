@@ -1,0 +1,26 @@
+{
+  "name": "solana-coralos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Solana × CoralOS starter kit for agents that earn — fork deliverService() to sell your own service, settled on-chain through a devnet escrow. The World Cup oracle is the default demo (npm run dev).",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "setup": "npm install --prefix scripts && node scripts/setup.js",
+    "dev": "node scripts/txodds.js",
+    "demo:coral": "node scripts/run-example.js examples/txodds coral",
+    "marketplace": "node scripts/run-example.js examples/marketplace start",
+    "marketplace:web": "node scripts/run-example.js examples/marketplace/web dev",
+    "freelancer": "node scripts/run-example.js examples/freelancer start",
+    "research": "node scripts/run-example.js examples/research start",
+    "research:watch": "node scripts/run-example.js examples/research watch",
+    "agent-economy": "node scripts/run-example.js examples/agent-economy/autonomous start",
+    "agent-economy:bridge": "node scripts/run-example.js examples/agent-economy/bridge start",
+    "agent-economy:quickstart": "node scripts/run-example.js examples/agent-economy/quickstart server",
+    "agent-economy:quickstart:buyer": "node scripts/run-example.js examples/agent-economy/quickstart buyer",
+    "agent-economy:web": "node scripts/run-example.js examples/agent-economy/web dev",
+    "flashpatch": "node scripts/run-example.js examples/flashpatch start",
+    "flashpatch:feed": "node scripts/run-example.js examples/flashpatch/feed start",
+    "flashpatch:web": "node scripts/run-example.js examples/flashpatch/web dev"
+  }
+}

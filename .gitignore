@@ -1,0 +1,44 @@
+# Editor
+.idea
+.vscode
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+tsconfig.tsbuildinfo
+
+# Anchor / Rust (the optional escrow add-on)
+target/
+.anchor/
+test-ledger/
+
+# Secrets — students fill these in themselves
+.env
+.env.local
+*.key
+*.pem
+buyer-keypair.json
+seller-keypair.json
+
+# Locks (students generate on npm install)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lock
+bun.lockb
+
+# Misc
+*.log
+coverage*.json
+.vercel
+
+# Reference repos cloned for analysis (not part of project)
+ref/
+
+# Generated wallet addresses (user-specific)
+WALLETS.txt
