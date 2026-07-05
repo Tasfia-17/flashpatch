@@ -1,0 +1,19 @@
+# Patch-Fast persona — overrides defaults from patch-generator base
+edition = 4
+
+[agent]
+name = "patch-fast"
+version = "0.1.0"
+description = "Fast patch agent: checked_sub only, 5s, lower confidence (0.72), cheapest bid. The speed play."
+
+[agent.license]
+type = "spdx"
+expression = "MIT"
+
+[options]
+PATCH_STRATEGY = { type = "string", default = "fast" }
+FLOOR_SOL      = { type = "f64",    default = 0.005 }
+AGENT_NAME     = { type = "string", default = "patch-fast" }
+
+[runtimes.docker]
+image = "patch-generator:0.1.0"

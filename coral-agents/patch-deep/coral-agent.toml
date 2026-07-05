@@ -1,0 +1,19 @@
+# Patch-Deep persona — static analysis + full invariant check, highest confidence
+edition = 4
+
+[agent]
+name = "patch-deep"
+version = "0.1.0"
+description = "Deep patch agent: static analysis + invariant assertions, 30s, confidence 0.95, premium price. The thorough play."
+
+[agent.license]
+type = "spdx"
+expression = "MIT"
+
+[options]
+PATCH_STRATEGY = { type = "string", default = "deep" }
+FLOOR_SOL      = { type = "f64",    default = 0.015 }
+AGENT_NAME     = { type = "string", default = "patch-deep" }
+
+[runtimes.docker]
+image = "patch-generator:0.1.0"

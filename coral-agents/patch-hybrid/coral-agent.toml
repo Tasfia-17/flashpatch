@@ -1,0 +1,19 @@
+# Patch-Hybrid persona — fast checked_sub with Anchor constraint macros, balanced
+edition = 4
+
+[agent]
+name = "patch-hybrid"
+version = "0.1.0"
+description = "Hybrid patch agent: Anchor constraint macros + checked_sub, 15s, confidence 0.91, mid price. Best of both."
+
+[agent.license]
+type = "spdx"
+expression = "MIT"
+
+[options]
+PATCH_STRATEGY = { type = "string", default = "hybrid" }
+FLOOR_SOL      = { type = "f64",    default = 0.010 }
+AGENT_NAME     = { type = "string", default = "patch-hybrid" }
+
+[runtimes.docker]
+image = "patch-generator:0.1.0"

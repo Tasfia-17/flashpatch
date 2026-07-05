@@ -1,0 +1,32 @@
+# Patch Generator Agent manifest — base config for all three personas
+# Docs: https://docs.coralos.ai/reference/agent
+edition = 4
+
+[agent]
+name = "patch-generator"
+version = "0.1.0"
+description = "Emergency patch generator. Bids on WANT(service=emergency_patch), selects a pre-audited patch from the registry by strategy, verifies escrow, and delivers the patch artifact."
+summary = "FlashPatch patch generator — one image, three personas (fast/deep/hybrid)."
+readme = "WANT -> BID -> AWARD -> ESCROW_REQUIRED -> DEPOSITED (verify funded) -> DELIVERED (patch JSON)"
+
+[agent.license]
+type = "spdx"
+expression = "MIT"
+
+[options]
+SELLER_WALLET           = { type = "string", description = "Devnet wallet pubkey receiving payment" }
+AGENT_NAME              = { type = "string", default = "patch-generator", description = "Market identity" }
+PATCH_STRATEGY          = { type = "string", default = "fast", description = "fast | deep | hybrid — selects patch from registry" }
+FLOOR_SOL               = { type = "f64",    default = 0.005, description = "Minimum bid in SOL" }
+ESCROW_DEADLINE_SECS    = { type = "f64",    default = 600, description = "Refund deadline for escrow deposits" }
+SOLANA_RPC_URL          = { type = "string", default = "", description = "Solana devnet RPC URL" }
+VULNERABLE_PROGRAM_ID   = { type = "string", default = "", description = "Program being patched" }
+VENICE_API_KEY          = { type = "string", default = "", description = "Venice AI key" }
+OPENAI_API_KEY          = { type = "string", default = "", description = "OpenAI key" }
+ANTHROPIC_API_KEY       = { type = "string", default = "", description = "Anthropic key" }
+LLM_PROVIDER            = { type = "string", default = "", description = "LLM provider override" }
+LLM_MODEL               = { type = "string", default = "", description = "LLM model override" }
+TRACE                   = { type = "string", default = "", description = "Set to 1 for verbose logs" }
+
+[runtimes.docker]
+image = "patch-generator:0.1.0"
